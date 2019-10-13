@@ -59,7 +59,7 @@ object EvaluationCoFunctionSpec extends FlinkTestKitCompanion[Prediction] {
 }
 
 class EvaluationCoFunctionSpec
-    extends FlinkSourcedPipelineTestKit[DynamicInput, ServingMessage, Prediction]
+  extends FlinkSourcedPipelineTestKit[DynamicInput, ServingMessage, Prediction]
     with WordSpecLike
     with Matchers
     with PmmlLoaderKit
@@ -112,7 +112,9 @@ class EvaluationCoFunctionSpec
 
     "raise exception on wrong model" in {
 
-      an[ModelLoadingException] shouldBe thrownBy { operator.loadModel(Source.NotExistingPath) }
+      an[ModelLoadingException] shouldBe thrownBy {
+        operator.loadModel(Source.NotExistingPath)
+      }
     }
 
   }
@@ -133,14 +135,18 @@ class EvaluationCoFunctionSpec
 
       val wrongIdModel = UUID.randomUUID().toString
 
-      a[WrongModelIdFormat] shouldBe thrownBy { evaluationCoOperator(operatorFunction).fromMetadata(wrongIdModel) }
+      a[WrongModelIdFormat] shouldBe thrownBy {
+        evaluationCoOperator(operatorFunction).fromMetadata(wrongIdModel)
+      }
     }
 
     "throw a WrongIdModelFormat if the id model format is wrong 2" in {
 
       val wrongIdModel = BaseInput.toIdentifier(UUID.randomUUID().toString, UUID.randomUUID().toString)
 
-      a[WrongModelIdFormat] shouldBe thrownBy { evaluationCoOperator(operatorFunction).fromMetadata(wrongIdModel) }
+      a[WrongModelIdFormat] shouldBe thrownBy {
+        evaluationCoOperator(operatorFunction).fromMetadata(wrongIdModel)
+      }
     }
 
   }

@@ -24,11 +24,11 @@ import sbt.Keys._
 object Dependencies {
 
   object Scala {
-
     lazy val libraries = Seq(
-      flink.scalaCore % Provided,
-      flink.streaming % Provided,
-      flink.clients % Provided,
+      flink.scalaCore,
+      flink.streaming,
+      flink.clients,
+      shapeless.core,
       flink.ml,
       jpmml.evaluator,
       logging.slf4j,
@@ -44,12 +44,10 @@ object Dependencies {
   }
 
   object Examples {
-
     lazy val libraries = Seq(
       flink.scalaCore % Provided,
       flink.streaming % Provided
     )
-
   }
 
   private object flink {
@@ -90,12 +88,11 @@ object Dependencies {
     lazy val mincluster = namespace % "hadoop-minicluster" % version
   }
 
-  private object junitinterface {
-    lazy val namespace = "com.novocode"
-    lazy val version = "0.11"
-    lazy val interface = namespace % "junit-interface" % version
+  private object shapeless {
+    lazy val namespace = "com.chuusai"
+    lazy val version = "2.3.3"
+    lazy val core = namespace %% "shapeless" % version
   }
-
   private object scalatest {
     lazy val namespace = "org.scalatest"
     lazy val version = "3.0.1"

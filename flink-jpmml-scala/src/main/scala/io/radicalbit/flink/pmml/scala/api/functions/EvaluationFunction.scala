@@ -33,11 +33,11 @@ import scala.util.{Failure, Success, Try}
   * the open method as a builder of the evaluator instance at operator initialization time
   *
   * @param reader The model reader instance coupled with the model source path
-  * @tparam IN The input Type
+  * @tparam IN  The input Type
   * @tparam OUT The output Type
   */
 private[scala] abstract class EvaluationFunction[IN, OUT](reader: ModelReader)
-    extends RichFlatMapFunction[IN, OUT]
+  extends RichFlatMapFunction[IN, OUT]
     with LazyLogging {
 
   protected lazy val evaluator: PmmlModel = PmmlModel.fromReader(reader)

@@ -39,8 +39,8 @@ sealed trait MetadataManager[T] {
 object MetadataManager extends LazyLogging {
 
   implicit def apply[T: MetadataManager](
-      command: T,
-      metadata: immutable.Map[ModelId, ModelInfo]): immutable.Map[ModelId, ModelInfo] =
+                                          command: T,
+                                          metadata: immutable.Map[ModelId, ModelInfo]): immutable.Map[ModelId, ModelInfo] =
     implicitly[MetadataManager[T]].manageMetadata(command, metadata)
 
   /**

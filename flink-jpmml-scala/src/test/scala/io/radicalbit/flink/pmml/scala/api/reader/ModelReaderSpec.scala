@@ -31,6 +31,7 @@ import org.scalatest.{BeforeAndAfter, Matchers, WordSpec}
 import scala.util.Try
 
 object ModelReaderSpec {
+
   private case class FakeReader()
 
   private val modelString =

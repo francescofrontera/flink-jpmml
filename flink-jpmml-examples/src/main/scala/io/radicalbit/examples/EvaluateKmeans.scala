@@ -45,8 +45,7 @@ object EvaluateKmeans extends EnsureParameters {
     val prediction = irisDataStream.evaluate(modelReader) {
       //Iris data and modelReader instance
       case (event, model) =>
-        val vectorized = event.toVector
-        val prediction = model.predict(vectorized, Some(0.0))
+        val prediction = model.predict(event, Some(0.0))
         (event, prediction.value.getOrElse(-1.0))
     }
 

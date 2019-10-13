@@ -20,13 +20,13 @@
 package io.radicalbit.flink.pmml
 
 import io.radicalbit.flink.pmml.scala.api.PmmlModel
+import io.radicalbit.flink.pmml.scala.api.converter.DerivableVector
 import io.radicalbit.flink.pmml.scala.api.functions.{EvaluationCoFunction, EvaluationFunction}
 import io.radicalbit.flink.pmml.scala.api.reader.ModelReader
 import io.radicalbit.flink.pmml.scala.models.control.ServingMessage
 import io.radicalbit.flink.pmml.scala.models.input.BaseEvent
 import io.radicalbit.flink.pmml.scala.models.prediction.Prediction
 import org.apache.flink.api.common.typeinfo.TypeInformation
-import org.apache.flink.ml.math.Vector
 import org.apache.flink.streaming.api.functions.co.CoProcessFunction
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.util.Collector
@@ -55,13 +55,13 @@ package object scala {
     * @param stream The input stream
     * @tparam T The input stream inner Type
     */
-  implicit class RichDataStream[T: TypeInformation: ClassTag](stream: DataStream[T]) {
+  implicit class RichDataStream[T: TypeInformation : ClassTag](stream: DataStream[T]) {
 
     /**
       * It connects the main `DataStream` with the `ControlStream`
       */
-    def withSupportStream[CTRL <: ServingMessage: TypeInformation](
-        supportStream: DataStream[CTRL]): ConnectedStreams[T, CTRL] =
+    def withSupportStream[CTRL <: ServingMessage : TypeInformation](
+                                                                     supportStream: DataStream[CTRL]): ConnectedStreams[T, CTRL] =
       stream.connect(supportStream.broadcast)
 
     /** It evaluates the `DataStream` against the model pointed out by
@@ -69,7 +69,7 @@ package object scala {
       * It's modeled on top of `EvaluationFunction`.
       *
       * @param modelReader the [[io.radicalbit.flink.pmml.scala.api.reader.ModelReader]] instance
-      * @param f UDF function
+      * @param f           UDF function
       * @tparam R The output type
       * @return `R`
       */
@@ -89,8 +89,8 @@ package object scala {
     * @param connectedStream the connected stream: it chains the event Stream and the models control Stream
     * @tparam T Type information relative to the main event stream
     */
-  implicit class RichConnectedStream[T <: BaseEvent: TypeInformation: ClassTag, CTRL <: ServingMessage](
-      connectedStream: ConnectedStreams[T, CTRL]) {
+  implicit class RichConnectedStream[T <: BaseEvent : TypeInformation : ClassTag, CTRL <: ServingMessage](
+                                                                                                           connectedStream: ConnectedStreams[T, CTRL]) {
 
     /**
       * It provides the evaluation function by applying
@@ -127,7 +127,7 @@ package object scala {
     * @param stream The input stream
     * @tparam V The input stream inner type; it is subclass of [[org.apache.flink.ml.math.Vector]]
     */
-  implicit class QuickDataStream[V <: Vector: TypeInformation: ClassTag](stream: DataStream[V]) {
+  implicit class QuickDataStream[V: TypeInformation : ClassTag : DerivableVector](stream: DataStream[V]) {
 
     /** Evaluates the `DataStream` against PmmlModel by invoking [[RichDataStream]] `evaluate` method.
       * It returns directly the prediction along with the input vector.
@@ -135,11 +135,17 @@ package object scala {
       * @param modelReader The reader instance coupled to model source path.
       * @return (Prediction, V)
       */
-    def quickEvaluate(modelReader: ModelReader): DataStream[(Prediction, V)] =
+    def quickEvaluate(modelReader: ModelReader): DataStream[(Prediction, V)] = {
+      def f: Seq[Double] = Vector.empty[Double]
+
+
       new RichDataStream[V](stream).evaluate(modelReader) { (vec, model) =>
-        val result: Prediction = model.predict(vec, None)
-        (result, vec)
+        //val result: Prediction = model.predict(vec, None)
+        f
+
+        (Prediction.emptyTarget, vec)
       }
+    }
   }
 
 }

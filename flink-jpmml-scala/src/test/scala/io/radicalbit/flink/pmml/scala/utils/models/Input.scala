@@ -34,6 +34,7 @@ object BaseInput {
   def toIdentifier(name: String, version: String): String = name + ModelId.separatorSymbol + version
 
 }
+
 sealed trait BaseInput {
 
   def values: Seq[Double]
@@ -44,12 +45,13 @@ sealed trait BaseInput {
 object Input {
   def apply(rawValues: Double*): Input = Input(values = rawValues.toList)
 }
+
 case class Input(values: List[Double]) extends BaseInput {
   def size: Int = values.size
 }
 
 final case class DynamicInput(modelId: String, values: List[Double], occurredOn: Long)
-    extends BaseEvent
+  extends BaseEvent
     with BaseInput {
   def size: Int = values.size
 }

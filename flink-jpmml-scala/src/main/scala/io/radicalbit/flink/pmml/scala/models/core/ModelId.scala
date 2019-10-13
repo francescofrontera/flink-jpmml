@@ -33,8 +33,14 @@ object ModelId extends RegexParsers {
 
   final val separatorSymbol = "_"
 
-  lazy val name = """[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}""".r ^^ { _.toString }
-  lazy val version = """^\d+$""".r ^^ { _.toLong }
+  lazy val name =
+    """[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}""".r ^^ {
+      _.toString
+    }
+  lazy val version =
+    """^\d+$""".r ^^ {
+      _.toLong
+    }
   lazy val nameAndVersion = name ~ separatorSymbol ~ version ^^ {
     case name ~ _ ~ version => ModelId(name, version)
   }
@@ -54,7 +60,7 @@ object ModelId extends RegexParsers {
 
 /** Represents an instance of the [[ModelId]]
   *
-  * @param name Name identifying the model
+  * @param name    Name identifying the model
   * @param version The version of the model
   */
 final case class ModelId(name: String, version: Long) {

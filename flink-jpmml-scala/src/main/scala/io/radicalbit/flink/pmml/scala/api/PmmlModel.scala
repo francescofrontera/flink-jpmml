@@ -22,13 +22,13 @@ package io.radicalbit.flink.pmml.scala.api
 import java.io.StringReader
 import java.util
 
+import io.radicalbit.flink.pmml.scala.api.converter.DerivableVector
 import io.radicalbit.flink.pmml.scala.api.exceptions.{InputValidationException, JPMMLExtractionException}
 import io.radicalbit.flink.pmml.scala.api.pipeline.Pipeline
 import io.radicalbit.flink.pmml.scala.api.reader.ModelReader
 import io.radicalbit.flink.pmml.scala.models.prediction.Prediction
-import org.apache.flink.ml.math.Vector
 import org.dmg.pmml.FieldName
-import org.jpmml.evaluator._
+import org.jpmml.evaluator.{EvaluatorUtil, FieldValue, ModelEvaluatorFactory}
 import org.jpmml.model.{ImportFilter, JAXBUtil}
 import org.xml.sax.InputSource
 
@@ -83,9 +83,7 @@ object PmmlModel {
   *
   * @param evaluator The PMML model instance
   */
-class PmmlModel(private[api] val evaluator: Evaluator) extends Pipeline {
-
-  import io.radicalbit.flink.pmml.scala.api.converter.VectorConverter._
+case class PmmlModel(private[api] val evaluator: Evaluator) extends Pipeline {
 
   final def modelName: String = evaluator.model.getModel.getModelName
 
@@ -101,14 +99,17 @@ class PmmlModel(private[api] val evaluator: Evaluator) extends Pipeline {
     *
     * As final action the pipelined statement is executed by [[Prediction]]
     *
-    * @param inputVector the input event as a [[org.apache.flink.ml.math.Vector]] instance
+    * @param input      the input event as a [[org.apache.flink.ml.math.Vector]] instance
     * @param replaceNan A [[scala.Option]] describing a replace value for not defined vector values
-    * @tparam V subclass of [[org.apache.flink.ml.math.Vector]]
+    * @tparam CC subclass of [[org.apache.flink.ml.math.Vector]]
     * @return [[Prediction]] instance
     */
-  final def predict[V <: Vector](inputVector: V, replaceNan: Option[Double] = None): Prediction = {
+
+  final def predict[CC: DerivableVector](input: CC, replaceNan: Option[Double] = None): Prediction = {
+    val toBeValidated = DerivableVector[CC].vector(input)
+
     val result = Try {
-      val validatedInput = validateInput(inputVector)
+      val validatedInput = validateInput(toBeValidated)
       val preparedInput = prepareInput(validatedInput, replaceNan)
       val evaluationResult = evaluateInput(preparedInput)
       val extractResult = extractTarget(evaluationResult)
@@ -121,22 +122,25 @@ class PmmlModel(private[api] val evaluator: Evaluator) extends Pipeline {
   /** Validates the input vector in size terms and converts it as a `Map[String, Any]` (see [[PmmlInput]])
     *
     * @param v The raw input vector
-    * @param vec2Pmml The conversion function
     * @return The converted instance
     */
-  private[api] def validateInput(v: Vector)(implicit vec2Pmml: (Vector, Evaluator) => PmmlInput): PmmlInput = {
+  private[api] def validateInput(v: Vector[Double]): PmmlInput = {
     val modelSize = evaluator.model.getActiveFields.size
 
     if (v.size != modelSize)
       throw new InputValidationException(s"input vector $v size ${v.size} is not conform to model size $modelSize")
-    else
-      vec2Pmml(v, evaluator)
+
+    evaluator.model.getActiveFields
+      .map(_.getName.getValue)
+      .zip(v)
+      .collect { case (key, value) ⇒ (key, value) }
+      .toMap
   }
 
   /** Binds each field with input value and prepare the record to be evaluated
     * by [[EvaluatorUtil.prepare]] method.
     *
-    * @param input Validated input as a [[Map]] keyed by field name
+    * @param input      Validated input as a [[Map]] keyed by field name
     * @param replaceNaN Optional replace value in case of missing values
     * @return Prepared input to be evaluated
     */
@@ -146,7 +150,9 @@ class PmmlModel(private[api] val evaluator: Evaluator) extends Pipeline {
 
     activeFields.map { field =>
       val rawValue = input.get(field.getName.getValue).orElse(replaceNaN).orNull
-      prepareAndEmit(Try { EvaluatorUtil.prepare(field, rawValue) }, field.getName)
+      prepareAndEmit(Try {
+        EvaluatorUtil.prepare(field, rawValue)
+      }, field.getName)
     }.toMap
 
   }
@@ -160,6 +166,7 @@ class PmmlModel(private[api] val evaluator: Evaluator) extends Pipeline {
     evaluator.model.evaluate(preparedInput)
 
   /** Extracts the target from evaluation result
+    *
     * @throws JPMMLExtractionException if the target couldn't be extracted
     * @param evaluationResult outcome from JPMML evaluation
     * @return The prediction value as a [Double]

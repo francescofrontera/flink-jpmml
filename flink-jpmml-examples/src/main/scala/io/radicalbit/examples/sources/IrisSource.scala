@@ -40,14 +40,15 @@ object IrisSource {
     env.addSource((sc: SourceContext[Iris]) => {
       while (true) {
         def randomVal = RandomMin + (RandomMax - RandomMin) * RandomGenerator.nextDouble()
+
         val dataForIris = Seq.fill(NumberOfParameters)(truncateDouble(randomVal))
         val iris =
           Iris(availableModelId(Random.nextInt(availableModelId.size)),
-               dataForIris(0),
-               dataForIris(1),
-               dataForIris(2),
-               dataForIris(3),
-               Utils.now())
+            dataForIris(0),
+            dataForIris(1),
+            dataForIris(2),
+            dataForIris(3),
+            Utils.now())
         sc.collect(iris)
         Thread.sleep(1000)
       }

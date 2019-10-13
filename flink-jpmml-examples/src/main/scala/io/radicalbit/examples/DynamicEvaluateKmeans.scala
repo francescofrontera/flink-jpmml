@@ -54,8 +54,7 @@ object DynamicEvaluateKmeans {
     val predictions = eventStream
       .withSupportStream(controlStream)
       .evaluate { (event: Iris, model: PmmlModel) =>
-        val vectorized = event.toVector
-        val prediction = model.predict(vectorized, Some(0.0))
+        val prediction = model.predict(event, Some(0.0))
         (event, prediction.value)
       }
 

@@ -45,6 +45,7 @@ abstract class ModelsManagerSpec[M: ModelsManager] extends WordSpec with Matcher
   def onOut(in: mutable.Map[Int, PmmlModel]): immutable.Set[Int]
 
   def knownOut: immutable.Set[Int] = onOut(in)
+
   def unknownOut: immutable.Set[Int] = onOut(unknownIn)
 
   "ModelsManager" should {

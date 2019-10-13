@@ -27,8 +27,9 @@ import scala.util.Random
 
 /**
   * Finite Control Messages Sources
+  *
   * @param mappingIdPath The Id, models path
-  * @param maxInterval The Max interval of generation between events
+  * @param maxInterval   The Max interval of generation between events
   */
 class FiniteSource(mappingIdPath: Map[String, String], maxInterval: Long) extends SourceFunction[ServingMessage] {
 

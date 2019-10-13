@@ -28,6 +28,6 @@ case class Iris(modelId: String,
                 petalLength: Double,
                 petalWidth: Double,
                 occurredOn: Long)
-    extends BaseEvent {
+  extends BaseEvent {
   def toVector = DenseVector(sepalLength, sepalWidth, petalLength, petalWidth)
 }

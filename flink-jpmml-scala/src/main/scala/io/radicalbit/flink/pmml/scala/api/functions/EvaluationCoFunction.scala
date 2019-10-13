@@ -49,11 +49,11 @@ import scala.util.{Failure, Success, Try}
   * the initializeState in order to provide an initial state at the operator and/or restore the latest
   *
   * @tparam EVENT The input Type of the event to predict
-  * @tparam CTRL The control stream Type. Note: It must extend [[io.radicalbit.flink.pmml.scala.models.control.ServingMessage]]
-  * @tparam OUT The output Type
+  * @tparam CTRL  The control stream Type. Note: It must extend [[io.radicalbit.flink.pmml.scala.models.control.ServingMessage]]
+  * @tparam OUT   The output Type
   */
 private[scala] abstract class EvaluationCoFunction[EVENT, CTRL <: ServingMessage, OUT]
-    extends CoProcessFunction[EVENT, CTRL, OUT]
+  extends CoProcessFunction[EVENT, CTRL, OUT]
     with CheckpointedFunction
     with LazyLogging {
 

@@ -63,14 +63,15 @@ object CheckpointEvaluate {
 
       while (true) {
         def randomVal = RandomMin + (RandomMax - RandomMin) * RandomGenerator.nextDouble()
+
         val dataForIris = Seq.fill(NumberOfParameters)(truncateDouble(randomVal))
         val iris =
           Iris(idSet.toVector(Random.nextInt(idSet.size)) + ModelId.separatorSymbol + "1",
-               dataForIris.head,
-               dataForIris(1),
-               dataForIris(2),
-               dataForIris.last,
-               Utils.now())
+            dataForIris.head,
+            dataForIris(1),
+            dataForIris(2),
+            dataForIris.last,
+            Utils.now())
         sc.collect(iris)
         Thread.sleep(1000)
       }
@@ -89,8 +90,7 @@ object CheckpointEvaluate {
     val predictions = eventStream
       .withSupportStream(controlStream)
       .evaluate { (event: Iris, model: PmmlModel) =>
-        val vectorized = event.toVector
-        val prediction = model.predict(vectorized, Some(0.0))
+        val prediction = model.predict(event, Some(0.0))
         (event, prediction.value)
       }
 

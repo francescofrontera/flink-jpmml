@@ -29,11 +29,12 @@ import scala.util.Random
 
 /**
   * Infinite Control Source
+  *
   * @param mappingIdPath The list of id, models paths mapping
-  * @param policy The generation policy
+  * @param policy        The generation policy
   */
 class InfiniteSource(mappingIdPath: Map[String, String], policy: ControlSource.Mode, maxInterval: Long)
-    extends SourceFunction[ServingMessage] {
+  extends SourceFunction[ServingMessage] {
 
   private val isRunning: AtomicBoolean = new AtomicBoolean(true)
 
@@ -43,6 +44,7 @@ class InfiniteSource(mappingIdPath: Map[String, String], policy: ControlSource.M
 
   /**
     * Since it's unbounded source, he generates events as long as the job lives, abiding by user defined policy
+    *
     * @param ctx The Flink SourceContext
     */
   override def run(ctx: SourceFunction.SourceContext[ServingMessage]): Unit =

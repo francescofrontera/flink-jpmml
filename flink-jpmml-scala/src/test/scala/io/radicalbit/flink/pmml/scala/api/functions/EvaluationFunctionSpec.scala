@@ -33,7 +33,7 @@ import org.scalatest.{Matchers, WordSpecLike}
 object EvaluationFunctionSpec extends FlinkTestKitCompanion[Prediction]
 
 class EvaluationFunctionSpec
-    extends FlinkPipelineTestKit[Input, Prediction]
+  extends FlinkPipelineTestKit[Input, Prediction]
     with WordSpecLike
     with Matchers
     with PmmlLoaderKit {

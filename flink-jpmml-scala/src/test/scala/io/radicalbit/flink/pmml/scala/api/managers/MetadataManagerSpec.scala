@@ -39,9 +39,11 @@ abstract class MetadataManagerSpec[M: MetadataManager] extends WordSpec with Mat
   val unknownIn = immutable.Map(ModelId("unknown-id", scala.util.Random.nextLong()) -> modelInfo)
 
   def outOnKnown: immutable.Map[ModelId, ModelInfo] = toOut(in)
+
   def outOnUnknown: immutable.Map[ModelId, ModelInfo] = toOut(unknownIn)
 
   def toOut(in: immutable.Map[ModelId, ModelInfo]): immutable.Map[ModelId, ModelInfo]
+
   def controlMessage: M
 
   "MetadataManager" should {

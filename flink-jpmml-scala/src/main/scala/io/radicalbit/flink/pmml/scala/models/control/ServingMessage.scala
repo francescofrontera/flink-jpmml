@@ -34,9 +34,9 @@ sealed trait ServingMessage {
 
 /** Defines a event control message in order to add a new model
   *
-  * @param name of the model
-  * @param version of the model
-  * @param path of the model
+  * @param name       of the model
+  * @param version    of the model
+  * @param path       of the model
   * @param occurredOn represents when the event occurred
   */
 final case class AddMessage(name: String, version: Long, path: String, occurredOn: Long) extends ServingMessage {
@@ -49,8 +49,8 @@ final case class AddMessage(name: String, version: Long, path: String, occurredO
 
 /** Defines a event control message in order to delete a model
   *
-  * @param name of the model
-  * @param version of the model
+  * @param name       of the model
+  * @param version    of the model
   * @param occurredOn represents when the event occurred
   */
 final case class DelMessage(name: String, version: Long, occurredOn: Long) extends ServingMessage {

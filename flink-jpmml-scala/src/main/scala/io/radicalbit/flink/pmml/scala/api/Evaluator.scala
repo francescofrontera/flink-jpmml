@@ -78,12 +78,14 @@ case object EmptyEvaluator extends Evaluator {
 
 /**
   * Represents the Evaluator if it is present
+  *
   * @param modelEval the evaluator for the Pmml Model
   */
 final case class PmmlEvaluator(modelEval: ModelEvaluator[_ <: Model]) extends Evaluator {
 
   /**
     * Retrieving the evaluator of the JpmmlEvaluator
+    *
     * @return the [[org.jpmml.evaluator.ModelEvaluator]]
     */
   override def model: ModelEvaluator[_ <: Model] = modelEval

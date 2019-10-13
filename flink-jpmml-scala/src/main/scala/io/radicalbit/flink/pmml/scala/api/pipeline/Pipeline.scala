@@ -34,16 +34,16 @@ import scala.util.{Failure, Success, Try}
   * additional features for the preparation and extraction pipeline steps.
   *
   */
-private[api] trait Pipeline { self: PmmlModel =>
+private[api] trait Pipeline {
+  self: PmmlModel =>
 
-  def predict[V <: Vector](inputVector: V, replaceNan: Option[Double] = None): Prediction
+  //def predict[V <: Vector](inputVector: V, replaceNan: Option[Double] = None): Prediction
 
   /** Emits prepared input if JPMML preparation went fine.
     *
     * @throws InputPreparationException if the JPMML preparation fails.
-    *
     * @param outcome `Try` evaluation of [[EvaluatorUtil.prepare]] method output value
-    * @param field The field name related to the value
+    * @param field   The field name related to the value
     * @return Prepared Input
     */
   private[api] def prepareAndEmit(outcome: Try[FieldValue], field: FieldName): (FieldName, FieldValue) =
@@ -71,9 +71,9 @@ private[api] trait Pipeline { self: PmmlModel =>
 
   /** Calls [[EvaluatorUtil.decode]] for each field demanded for extraction.
     *
-    * @param fields demanded for extraction
+    * @param fields           demanded for extraction
     * @param evaluationResult evaluation outcome container
-    * @param evaluator The PMML instance as a [[org.jpmml.evaluator.ModelEvaluator]]
+    * @param evaluator        The PMML instance as a [[org.jpmml.evaluator.ModelEvaluator]]
     * @return
     */
   private[api] def extractFields(fields: java.util.List[_ <: ModelField],
@@ -82,7 +82,9 @@ private[api] trait Pipeline { self: PmmlModel =>
     for {
       field <- fields
       fieldName <- Option(field.getName)
-    } yield { fieldName.getValue -> EvaluatorUtil.decode(evaluationResult.get(fieldName)) }
+    } yield {
+      fieldName.getValue -> EvaluatorUtil.decode(evaluationResult.get(fieldName))
+    }
 
   /** Casts a String to Double if the outcome is a String, returns the Double otherwise.
     *

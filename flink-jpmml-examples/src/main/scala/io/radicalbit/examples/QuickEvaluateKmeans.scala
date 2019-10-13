@@ -19,7 +19,6 @@
 
 package io.radicalbit.examples
 
-import io.radicalbit.examples.models.Iris
 import io.radicalbit.examples.sources.IrisSource._
 import io.radicalbit.examples.util.EnsureParameters
 import io.radicalbit.flink.pmml.scala._
@@ -29,8 +28,6 @@ import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.streaming.api.scala._
 
 object QuickEvaluateKmeans extends EnsureParameters {
-  implicit val derivableVector = DerivableVector[Iris]
-
   def main(args: Array[String]): Unit = {
     val params: ParameterTool = ParameterTool.fromArgs(args)
     val env = StreamExecutionEnvironment.getExecutionEnvironment
@@ -41,16 +38,12 @@ object QuickEvaluateKmeans extends EnsureParameters {
     //Read data from custom iris source
     val irisDataStream = irisSource(env, None)
 
-    //Convert iris to DenseVector
-    //    val irisToVector = irisDataStream.map(iris => iris.toVector)
-
     //Load PMML model
     val model = ModelReader(inputModel)
 
     irisDataStream
       .quickEvaluate(model)
-      .print()
-    //.writeAsText(output)
+      .writeAsText(output)
 
     env.execute("Quick evaluator Clustering")
   }

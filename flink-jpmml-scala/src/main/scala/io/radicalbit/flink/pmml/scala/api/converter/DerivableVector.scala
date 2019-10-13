@@ -28,6 +28,8 @@ trait DerivableVector[CC] extends Serializable {
 }
 
 object DerivableVector {
+  private[this] val eventFields = Set("modelid", "occurredon")
+
   def apply[A: DerivableVector]: DerivableVector[A] = implicitly[DerivableVector[A]]
 
   implicit def numberVector[T: Numeric]: DerivableVector[T] = new DerivableVector[T] {
@@ -52,13 +54,9 @@ object DerivableVector {
       tails: DerivableVector[TL]): DerivableVector[FieldType[K, H] :: TL] =
     new DerivableVector[FieldType[K, H] :: TL] {
       override def vector(in: FieldType[K, H] :: TL): Vector[Double] =
-        keyWitness.value.name.toLowerCase match {
-          case "occurredon" | "modelid" ⇒ tails.vector(in.tail)
-          case _ ⇒ heads.value.vector(in.head) ++ tails.vector(in.tail)
-        }
+        if (eventFields.contains(keyWitness.value.name.toLowerCase)) tails.vector(in.tail)
+        else heads.value.vector(in.head) ++ tails.vector(in.tail)
     }
-
-  //Enrich support for coProducts..
 
   implicit def ccToVector[CC <: BaseEvent, HL <: HList](
       implicit lGen: LabelledGeneric.Aux[CC, HL],

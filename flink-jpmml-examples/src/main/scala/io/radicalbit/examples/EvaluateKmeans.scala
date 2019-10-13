@@ -21,14 +21,12 @@ package io.radicalbit.examples
 
 import io.radicalbit.examples.sources.IrisSource._
 import io.radicalbit.examples.util.EnsureParameters
-
+import io.radicalbit.flink.pmml.scala._
 import io.radicalbit.flink.pmml.scala.api.reader.ModelReader
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.streaming.api.scala._
 
 object EvaluateKmeans extends EnsureParameters {
-  import io.radicalbit.flink.pmml.scala._
-
   def main(args: Array[String]): Unit = {
     val params: ParameterTool = ParameterTool.fromArgs(args)
     implicit val env = StreamExecutionEnvironment.getExecutionEnvironment
@@ -41,7 +39,6 @@ object EvaluateKmeans extends EnsureParameters {
 
     //Load model
     val modelReader = ModelReader(inputModel)
-
 
     //Using evaluate operator
     val prediction = irisDataStream.evaluate(modelReader) {

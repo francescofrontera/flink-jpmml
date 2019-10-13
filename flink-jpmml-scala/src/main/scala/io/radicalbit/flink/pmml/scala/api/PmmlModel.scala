@@ -106,9 +106,10 @@ case class PmmlModel(private[api] val evaluator: Evaluator) extends Pipeline {
     * @return [[Prediction]] instance
     */
   final def predict[C: DerivableVector](vector: C, replaceNan: Option[Double] = None): Prediction = {
+    val evAsVector = DerivableVector[C].vector(vector)
 
     val result = Try {
-      val validatedInput = validateInput(DerivableVector[C].vector(vector))
+      val validatedInput = validateInput(evAsVector)
       val preparedInput = prepareInput(validatedInput, replaceNan)
       val evaluationResult = evaluateInput(preparedInput)
       val extractResult = extractTarget(evaluationResult)

@@ -76,3 +76,5 @@ assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeSca
 testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v")
 
 fork in test := false
+
+cancelable in Global := true

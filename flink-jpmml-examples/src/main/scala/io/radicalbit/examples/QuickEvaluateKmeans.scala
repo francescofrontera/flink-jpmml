@@ -29,7 +29,7 @@ import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.streaming.api.scala._
 
 object QuickEvaluateKmeans extends EnsureParameters {
-  //implicit val derivableVector = DerivableVector[Iris]
+  implicit val derivableVector = DerivableVector[Iris]
 
   def main(args: Array[String]): Unit = {
     val params: ParameterTool = ParameterTool.fromArgs(args)

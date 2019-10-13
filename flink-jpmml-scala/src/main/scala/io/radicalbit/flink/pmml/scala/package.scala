@@ -73,7 +73,9 @@ package object scala {
       * @tparam R The output type
       * @return `R`
       */
-    def evaluate[R: TypeInformation](modelReader: ModelReader)(f: (T, PmmlModel) => R): DataStream[R] = {
+    def evaluate[R: TypeInformation](modelReader: ModelReader)(f: (T, PmmlModel) => R)(
+        implicit derivableVector: DerivableVector[T]
+    ): DataStream[R] = {
       val abstractOperator = new EvaluationFunction[T, R](modelReader) {
         override def flatMap(value: T, out: Collector[R]): Unit = out.collect(f(value, evaluator))
       }
@@ -104,7 +106,9 @@ package object scala {
       * @tparam R UDF return type
       * @return The prediction output as defined by the UDF
       */
-    def evaluate[R: TypeInformation](f: (T, PmmlModel) => R): DataStream[R] = {
+    def evaluate[R: TypeInformation](f: (T, PmmlModel) => R)(
+        implicit derivableVector: DerivableVector[T]
+    ): DataStream[R] = {
 
       val abstractOperator = new EvaluationCoFunction[T, CTRL, R] {
 
@@ -112,7 +116,6 @@ package object scala {
           val model = servingModels.getOrElse(event.modelId.hashCode, fromMetadata(event.modelId))
           out.collect(f(event, model))
         }
-
       }
 
       connectedStream.process(abstractOperator)
@@ -127,7 +130,7 @@ package object scala {
     * @param stream The input stream
     * @tparam V The input stream inner type; it is subclass of [[org.apache.flink.ml.math.Vector]]
     */
-  implicit class QuickDataStream[V <: BaseEvent: TypeInformation: ClassTag](stream: DataStream[V]) {
+  implicit class QuickDataStream[V: TypeInformation: ClassTag](stream: DataStream[V]) {
 
     /** Evaluates the `DataStream` against PmmlModel by invoking [[RichDataStream]] `evaluate` method.
       * It returns directly the prediction along with the input vector.
@@ -135,7 +138,8 @@ package object scala {
       * @param modelReader The reader instance coupled to model source path.
       * @return (Prediction, V)
       */
-    def quickEvaluate(modelReader: ModelReader): DataStream[(Prediction, V)] = {
+    def quickEvaluate(modelReader: ModelReader)(
+        implicit derivableVector: DerivableVector[V]): DataStream[(Prediction, V)] = {
       new RichDataStream[V](stream).evaluate(modelReader) { (vec, model) =>
         val result: Prediction = model.predict(vec, None)
         (result, vec)

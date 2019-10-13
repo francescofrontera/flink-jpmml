@@ -102,12 +102,13 @@ case class PmmlModel(private[api] val evaluator: Evaluator) extends Pipeline {
     *
     * @param vector     the input event as a [[org.apache.flink.ml.math.Vector]] instance
     * @param replaceNan A [[scala.Option]] describing a replace value for not defined vector values
+    * @tparam C subclass of [[org.apache.flink.ml.math.Vector]]
     * @return [[Prediction]] instance
     */
-  final def predict[C](vector: C, replaceNan: Option[Double] = None)(implicit der: DerivableVector[C]): Prediction = {
+  final def predict[C: DerivableVector](vector: C, replaceNan: Option[Double] = None): Prediction = {
 
     val result = Try {
-      val validatedInput = validateInput(der.vector(vector))
+      val validatedInput = validateInput(DerivableVector[C].vector(vector))
       val preparedInput = prepareInput(validatedInput, replaceNan)
       val evaluationResult = evaluateInput(preparedInput)
       val extractResult = extractTarget(evaluationResult)

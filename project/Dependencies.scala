@@ -1,5 +1,6 @@
 import sbt._
 import sbt.Keys._
+
 /*
  *
  * Copyright (c) 2017 Radicalbit
@@ -73,7 +74,7 @@ object Dependencies {
     lazy val slf4j = namespace % "slf4j-api" % version
   }
 
-  /*** Test utils ***/
+  /** * Test utils ***/
   private object asm {
     lazy val namespace = "asm"
     lazy val version = "3.3.1"
@@ -93,6 +94,7 @@ object Dependencies {
     lazy val version = "2.3.3"
     lazy val core = namespace %% "shapeless" % version
   }
+
   private object scalatest {
     lazy val namespace = "org.scalatest"
     lazy val version = "3.0.1"

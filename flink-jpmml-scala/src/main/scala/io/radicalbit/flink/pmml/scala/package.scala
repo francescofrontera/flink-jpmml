@@ -55,13 +55,13 @@ package object scala {
     * @param stream The input stream
     * @tparam T The input stream inner Type
     */
-  implicit class RichDataStream[T: TypeInformation : ClassTag](stream: DataStream[T]) {
+  implicit class RichDataStream[T: TypeInformation: ClassTag](stream: DataStream[T]) {
 
     /**
       * It connects the main `DataStream` with the `ControlStream`
       */
-    def withSupportStream[CTRL <: ServingMessage : TypeInformation](
-                                                                     supportStream: DataStream[CTRL]): ConnectedStreams[T, CTRL] =
+    def withSupportStream[CTRL <: ServingMessage: TypeInformation](
+        supportStream: DataStream[CTRL]): ConnectedStreams[T, CTRL] =
       stream.connect(supportStream.broadcast)
 
     /** It evaluates the `DataStream` against the model pointed out by
@@ -89,8 +89,8 @@ package object scala {
     * @param connectedStream the connected stream: it chains the event Stream and the models control Stream
     * @tparam T Type information relative to the main event stream
     */
-  implicit class RichConnectedStream[T <: BaseEvent : TypeInformation : ClassTag, CTRL <: ServingMessage](
-                                                                                                           connectedStream: ConnectedStreams[T, CTRL]) {
+  implicit class RichConnectedStream[T <: BaseEvent: TypeInformation: ClassTag, CTRL <: ServingMessage](
+      connectedStream: ConnectedStreams[T, CTRL]) {
 
     /**
       * It provides the evaluation function by applying
@@ -127,7 +127,7 @@ package object scala {
     * @param stream The input stream
     * @tparam V The input stream inner type; it is subclass of [[org.apache.flink.ml.math.Vector]]
     */
-  implicit class QuickDataStream[V: TypeInformation : ClassTag : DerivableVector](stream: DataStream[V]) {
+  implicit class QuickDataStream[V <: BaseEvent: TypeInformation: ClassTag](stream: DataStream[V]) {
 
     /** Evaluates the `DataStream` against PmmlModel by invoking [[RichDataStream]] `evaluate` method.
       * It returns directly the prediction along with the input vector.
@@ -136,14 +136,9 @@ package object scala {
       * @return (Prediction, V)
       */
     def quickEvaluate(modelReader: ModelReader): DataStream[(Prediction, V)] = {
-      def f: Seq[Double] = Vector.empty[Double]
-
-
       new RichDataStream[V](stream).evaluate(modelReader) { (vec, model) =>
-        //val result: Prediction = model.predict(vec, None)
-        f
-
-        (Prediction.emptyTarget, vec)
+        val result: Prediction = model.predict(vec, None)
+        (result, vec)
       }
     }
   }

@@ -34,7 +34,7 @@ import scala.util.Random
   * @param policy        The generation policy
   */
 class InfiniteSource(mappingIdPath: Map[String, String], policy: ControlSource.Mode, maxInterval: Long)
-  extends SourceFunction[ServingMessage] {
+    extends SourceFunction[ServingMessage] {
 
   private val isRunning: AtomicBoolean = new AtomicBoolean(true)
 

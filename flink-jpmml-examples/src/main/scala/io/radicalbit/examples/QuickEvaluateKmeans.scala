@@ -19,14 +19,17 @@
 
 package io.radicalbit.examples
 
+import io.radicalbit.examples.models.Iris
 import io.radicalbit.examples.sources.IrisSource._
 import io.radicalbit.examples.util.EnsureParameters
 import io.radicalbit.flink.pmml.scala._
+import io.radicalbit.flink.pmml.scala.api.converter.DerivableVector
 import io.radicalbit.flink.pmml.scala.api.reader.ModelReader
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.streaming.api.scala._
 
 object QuickEvaluateKmeans extends EnsureParameters {
+  //implicit val derivableVector = DerivableVector[Iris]
 
   def main(args: Array[String]): Unit = {
     val params: ParameterTool = ParameterTool.fromArgs(args)

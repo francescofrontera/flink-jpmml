@@ -40,7 +40,7 @@ package object exceptions {
     *
     */
   private[scala] class ModelLoadingException(msg: String, throwable: Throwable)
-    extends RuntimeException(msg, throwable)
+      extends RuntimeException(msg, throwable)
 
   /** Prediction failure due to [[io.radicalbit.flink.pmml.scala.api.EmptyEvaluator]]
     *

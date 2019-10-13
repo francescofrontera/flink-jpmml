@@ -26,6 +26,7 @@ import io.radicalbit.flink.pmml.scala.api.converter.DerivableVector
 import io.radicalbit.flink.pmml.scala.api.exceptions.{InputValidationException, JPMMLExtractionException}
 import io.radicalbit.flink.pmml.scala.api.pipeline.Pipeline
 import io.radicalbit.flink.pmml.scala.api.reader.ModelReader
+import io.radicalbit.flink.pmml.scala.models.input.BaseEvent
 import io.radicalbit.flink.pmml.scala.models.prediction.Prediction
 import org.dmg.pmml.FieldName
 import org.jpmml.evaluator.{EvaluatorUtil, FieldValue, ModelEvaluatorFactory}
@@ -99,17 +100,14 @@ case class PmmlModel(private[api] val evaluator: Evaluator) extends Pipeline {
     *
     * As final action the pipelined statement is executed by [[Prediction]]
     *
-    * @param input      the input event as a [[org.apache.flink.ml.math.Vector]] instance
+    * @param vector     the input event as a [[org.apache.flink.ml.math.Vector]] instance
     * @param replaceNan A [[scala.Option]] describing a replace value for not defined vector values
-    * @tparam CC subclass of [[org.apache.flink.ml.math.Vector]]
     * @return [[Prediction]] instance
     */
-
-  final def predict[CC: DerivableVector](input: CC, replaceNan: Option[Double] = None): Prediction = {
-    val toBeValidated = DerivableVector[CC].vector(input)
+  final def predict[C](vector: C, replaceNan: Option[Double] = None)(implicit der: DerivableVector[C]): Prediction = {
 
     val result = Try {
-      val validatedInput = validateInput(toBeValidated)
+      val validatedInput = validateInput(der.vector(vector))
       val preparedInput = prepareInput(validatedInput, replaceNan)
       val evaluationResult = evaluateInput(preparedInput)
       val extractResult = extractTarget(evaluationResult)

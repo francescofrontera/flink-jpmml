@@ -19,6 +19,7 @@
 
 package io.radicalbit.flink.pmml.scala.api.converter
 
+import io.radicalbit.flink.pmml.scala.models.input.BaseEvent
 import shapeless._
 import shapeless.labelled.FieldType
 
@@ -37,10 +38,8 @@ object DerivableVector {
   }
 
   implicit val asString: DerivableVector[String] = new DerivableVector[String] {
-    override def vector(in: String): Vector[Double] = {
-      if (in.equalsIgnoreCase("modelid")) Vector.empty[Double]
-      else Vector(in.toDouble)
-    }
+    override def vector(in: String): Vector[Double] = Vector(in.toDouble)
+
   }
 
   implicit def nilVector[N <: HNil]: DerivableVector[N] = new DerivableVector[N] {
@@ -48,19 +47,23 @@ object DerivableVector {
   }
 
   implicit def valueVector[K <: Symbol, H, TL <: HList](
-                                                         implicit heads: Lazy[DerivableVector[H]],
-                                                         tails: DerivableVector[TL]): DerivableVector[FieldType[K, H] :: TL] =
+      implicit keyWitness: Witness.Aux[K],
+      heads: Lazy[DerivableVector[H]],
+      tails: DerivableVector[TL]): DerivableVector[FieldType[K, H] :: TL] =
     new DerivableVector[FieldType[K, H] :: TL] {
       override def vector(in: FieldType[K, H] :: TL): Vector[Double] =
-        heads.value.vector(in.head) ++ tails.vector(in.tail)
+        keyWitness.value.name.toLowerCase match {
+          case "occurredon" | "modelid" ⇒ tails.vector(in.tail)
+          case _ ⇒ heads.value.vector(in.head) ++ tails.vector(in.tail)
+        }
     }
 
   //Enrich support for coProducts..
 
-  implicit def ccToVector[CC, HL <: HList](
-                                            implicit lGen: LabelledGeneric.Aux[CC, HL],
-                                            dVector: DerivableVector[HL]
-                                          ): DerivableVector[CC] = new DerivableVector[CC] {
+  implicit def ccToVector[CC <: BaseEvent, HL <: HList](
+      implicit lGen: LabelledGeneric.Aux[CC, HL],
+      dVector: DerivableVector[HL]
+  ): DerivableVector[CC] = new DerivableVector[CC] {
     override def vector(in: CC): Vector[Double] = dVector.vector(lGen.to(in))
   }
 }

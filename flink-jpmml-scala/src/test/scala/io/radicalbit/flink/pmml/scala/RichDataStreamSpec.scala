@@ -39,7 +39,7 @@ object RichDataStreamSpec extends FlinkTestKitCompanion[Prediction] {
 }
 
 class RichDataStreamSpec
-  extends FlinkPipelineTestKit[Input, Prediction]
+    extends FlinkPipelineTestKit[Input, Prediction]
     with WordSpecLike
     with Matchers
     with PmmlLoaderKit {
@@ -54,7 +54,7 @@ class RichDataStreamSpec
   private val emptyPrediction = Prediction(Target.empty)
 
   private def pipelineBuilder(source: Option[String])(
-    f: (Input, PmmlModel) => Prediction): DataStream[Input] => DataStream[Prediction] = {
+      f: (Input, PmmlModel) => Prediction): DataStream[Input] => DataStream[Prediction] = {
 
     val evaluator = ModelReader(source getOrElse getPMMLSource(Source.KmeansPmml))
 

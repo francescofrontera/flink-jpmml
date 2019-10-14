@@ -67,9 +67,9 @@ object DerivableVector {
   implicit def cNilVector: DerivableVector[CNil] = createDerivableVector(_ ⇒ Vector.empty[Double])
 
   implicit def cValueVector[K <: Symbol, H, TL <: Coproduct](
-                                                              implicit keyWitness: Witness.Aux[K],
-                                                              heads: Lazy[DerivableVector[H]],
-                                                              tails: DerivableVector[TL]): DerivableVector[FieldType[K, H] :+: TL] =
+      implicit keyWitness: Witness.Aux[K],
+      heads: Lazy[DerivableVector[H]],
+      tails: DerivableVector[TL]): DerivableVector[FieldType[K, H] :+: TL] =
     createDerivableVector {
       case Inl(head) ⇒ heads.value.vector(head)
       case Inr(tail) ⇒ tails.vector(tail)
@@ -77,16 +77,16 @@ object DerivableVector {
     }
 
   implicit def valueVector[K <: Symbol, H, TL <: HList](
-                                                         implicit keyWitness: Witness.Aux[K],
-                                                         heads: Lazy[DerivableVector[H]],
-                                                         tails: DerivableVector[TL]): DerivableVector[FieldType[K, H] :: TL] =
+      implicit keyWitness: Witness.Aux[K],
+      heads: Lazy[DerivableVector[H]],
+      tails: DerivableVector[TL]): DerivableVector[FieldType[K, H] :: TL] =
     createDerivableVector {
       case _ :: tl if eventFields.contains(keyWitness.value.name.toLowerCase) => tails.vector(tl)
       case h :: tl ⇒ heads.value.vector(h) ++ tails.vector(tl)
     }
 
   implicit def ccToVector[CC, HL <: HList](
-                                            implicit lGen: LabelledGeneric.Aux[CC, HL],
-                                            dVector: DerivableVector[HL]
-                                          ): DerivableVector[CC] = createDerivableVector(in ⇒ dVector.vector(lGen.to(in)))
+      implicit lGen: LabelledGeneric.Aux[CC, HL],
+      dVector: DerivableVector[HL]
+  ): DerivableVector[CC] = createDerivableVector(in ⇒ dVector.vector(lGen.to(in)))
 }

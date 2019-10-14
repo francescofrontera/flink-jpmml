@@ -32,7 +32,7 @@ import org.scalatest.{Matchers, WordSpecLike}
 object QuickDataStreamSpec extends FlinkTestKitCompanion[(Prediction, Vector)]
 
 class QuickDataStreamSpec
-  extends FlinkPipelineTestKit[Vector, (Prediction, Vector)]
+    extends FlinkPipelineTestKit[Vector, (Prediction, Vector)]
     with WordSpecLike
     with Matchers
     with PmmlLoaderKit {

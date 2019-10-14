@@ -59,7 +59,7 @@ object EvaluationCoFunctionSpec extends FlinkTestKitCompanion[Prediction] {
 }
 
 class EvaluationCoFunctionSpec
-  extends FlinkSourcedPipelineTestKit[DynamicInput, ServingMessage, Prediction]
+    extends FlinkSourcedPipelineTestKit[DynamicInput, ServingMessage, Prediction]
     with WordSpecLike
     with Matchers
     with PmmlLoaderKit

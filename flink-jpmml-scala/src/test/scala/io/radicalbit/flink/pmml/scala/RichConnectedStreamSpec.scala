@@ -21,12 +21,11 @@ package io.radicalbit.flink.pmml.scala
 
 import java.util.UUID
 
-import io.radicalbit.flink.pmml.scala.api.PmmlModel
 import io.radicalbit.flink.pmml.scala.api.converter.DerivableVector
 import io.radicalbit.flink.pmml.scala.models.control.{AddMessage, DelMessage, ServingMessage}
 import io.radicalbit.flink.pmml.scala.models.prediction.{Prediction, Score, Target}
-import io.radicalbit.flink.pmml.scala.utils.{FlinkSourcedPipelineTestKit, PmmlLoaderKit}
 import io.radicalbit.flink.pmml.scala.utils.models.{BaseInput, DynamicInput}
+import io.radicalbit.flink.pmml.scala.utils.{FlinkSourcedPipelineTestKit, PmmlLoaderKit}
 import io.radicalbit.flink.streaming.spec.core.FlinkTestKitCompanion
 import org.apache.flink.runtime.client.JobExecutionException
 import org.apache.flink.streaming.api.scala._
@@ -35,7 +34,7 @@ import org.scalatest.{Matchers, WordSpecLike}
 object RichConnectedStreamSpec extends FlinkTestKitCompanion[Prediction] {}
 
 class RichConnectedStreamSpec
-  extends FlinkSourcedPipelineTestKit[DynamicInput, ServingMessage, Prediction]
+    extends FlinkSourcedPipelineTestKit[DynamicInput, ServingMessage, Prediction]
     with WordSpecLike
     with Matchers
     with PmmlLoaderKit {
@@ -98,10 +97,10 @@ class RichConnectedStreamSpec
       val in2: Seq[(Long, ServingMessage)] = Seq(
         (0L, AddMessage(nameModel1, version.toLong, getPMMLSource(Source.KmeansPmml), System.currentTimeMillis())),
         (1L,
-          AddMessage(nameModel2,
-            version.toLong,
-            getPMMLSource(Source.KmeansPmmlNoOutNoTrg),
-            System.currentTimeMillis()))
+         AddMessage(nameModel2,
+                    version.toLong,
+                    getPMMLSource(Source.KmeansPmmlNoOutNoTrg),
+                    System.currentTimeMillis()))
       )
 
       val out = Seq(defaultPrediction, emptyPrediction)
@@ -153,10 +152,10 @@ class RichConnectedStreamSpec
       val in2: Seq[(Long, ServingMessage)] = Seq(
         (0L, AddMessage(nameModel1, version.toLong, getPMMLSource(Source.KmeansPmml), System.currentTimeMillis())),
         (1L,
-          AddMessage(nameModel2,
-            version.toLong,
-            getPMMLSource(Source.KmeansPmmlNoOutNoTrg),
-            System.currentTimeMillis()))
+         AddMessage(nameModel2,
+                    version.toLong,
+                    getPMMLSource(Source.KmeansPmmlNoOutNoTrg),
+                    System.currentTimeMillis()))
       )
 
       val out = Seq.empty[Prediction]
@@ -268,10 +267,10 @@ class RichConnectedStreamSpec
       val in2: Seq[(Long, ServingMessage)] = Seq(
         (0L, AddMessage(nameModel1, version.toLong, getPMMLSource(Source.KmeansPmml), System.currentTimeMillis())),
         (2L,
-          AddMessage(nameModel1,
-            version.toLong,
-            getPMMLSource(Source.KmeansPmmlNoOutNoTrg),
-            System.currentTimeMillis()))
+         AddMessage(nameModel1,
+                    version.toLong,
+                    getPMMLSource(Source.KmeansPmmlNoOutNoTrg),
+                    System.currentTimeMillis()))
       )
 
       val out = Seq(defaultPrediction, defaultPrediction)

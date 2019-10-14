@@ -37,7 +37,7 @@ import scala.util.{Failure, Success, Try}
   * @tparam OUT The output Type
   */
 private[scala] abstract class EvaluationFunction[IN, OUT](reader: ModelReader)
-  extends RichFlatMapFunction[IN, OUT]
+    extends RichFlatMapFunction[IN, OUT]
     with LazyLogging {
 
   protected lazy val evaluator: PmmlModel = PmmlModel.fromReader(reader)

@@ -34,8 +34,7 @@ import scala.util.{Failure, Success, Try}
   * additional features for the preparation and extraction pipeline steps.
   *
   */
-private[api] trait Pipeline {
-  self: PmmlModel =>
+private[api] trait Pipeline { self: PmmlModel =>
 
   //def predict[V <: Vector](inputVector: V, replaceNan: Option[Double] = None): Prediction
 

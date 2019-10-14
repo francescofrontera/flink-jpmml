@@ -53,7 +53,7 @@ import scala.util.{Failure, Success, Try}
   * @tparam OUT   The output Type
   */
 private[scala] abstract class EvaluationCoFunction[EVENT, CTRL <: ServingMessage, OUT]
-    extends CoProcessFunction[EVENT, CTRL, OUT]
+  extends CoProcessFunction[EVENT, CTRL, OUT]
     with CheckpointedFunction
     with LazyLogging {
 

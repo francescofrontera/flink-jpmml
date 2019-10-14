@@ -48,7 +48,7 @@ object EvaluateKmeans extends EnsureParameters {
         (event, prediction.value.getOrElse(-1.0))
     }
 
-    prediction.writeAsText(output)
+    prediction.print() //.writeAsText(output)
 
     env.execute("Clustering example")
   }

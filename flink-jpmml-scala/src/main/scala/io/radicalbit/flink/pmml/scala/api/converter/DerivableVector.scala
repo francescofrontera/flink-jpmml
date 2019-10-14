@@ -20,6 +20,8 @@
 package io.radicalbit.flink.pmml.scala.api.converter
 
 import io.radicalbit.flink.pmml.scala.models.input.BaseEvent
+import org.apache.flink.ml.math.{DenseVector, SparseVector}
+import org.apache.flink.ml.math.{Vector ⇒ FMLVector}
 import shapeless._
 import shapeless.labelled.FieldType
 
@@ -30,38 +32,61 @@ trait DerivableVector[CC] extends Serializable {
 object DerivableVector {
   private[this] val eventFields = Set("modelid", "occurredon")
 
+  private[this] def createDerivableVector[A](f: A ⇒ Vector[Double]): DerivableVector[A] = new DerivableVector[A] {
+    override def vector(in: A): Vector[Double] = f(in)
+  }
+
   def apply[A: DerivableVector]: DerivableVector[A] = implicitly[DerivableVector[A]]
 
-  implicit def numberVector[T: Numeric]: DerivableVector[T] = new DerivableVector[T] {
-    override def vector(in: T): Vector[Double] = {
-      val asDouble: Double = implicitly[Numeric[T]].toDouble(in)
-      Vector(asDouble)
+  implicit def numberVector[T: Numeric]: DerivableVector[T] =
+    createDerivableVector(v ⇒ Vector(implicitly[Numeric[T]].toDouble(v)))
+
+  implicit val asString: DerivableVector[String] =
+    createDerivableVector(strgValue ⇒ Vector(strgValue.toDouble))
+
+  implicit val asDenseVector: DerivableVector[DenseVector] =
+    createDerivableVector(_.toVector.map(_._2))
+
+  implicit val asSparesVector: DerivableVector[SparseVector] =
+    createDerivableVector(s ⇒ s.toVector.map(_._2))
+
+  implicit val asVector: DerivableVector[Vector[Double]] =
+    createDerivableVector(identity)
+
+  implicit val asList: DerivableVector[List[Double]] =
+    createDerivableVector(_.toVector)
+
+  //FIXME: Consider to remove after avoid vector ML Usage
+  implicit def vector: DerivableVector[FMLVector] = createDerivableVector {
+    case v: DenseVector ⇒ asDenseVector.vector(v)
+    case v: SparseVector ⇒ asSparesVector.vector(v)
+  }
+
+  implicit def nilVector: DerivableVector[HNil] = createDerivableVector(_ ⇒ Vector.empty[Double])
+
+  implicit def cNilVector: DerivableVector[CNil] = createDerivableVector(_ ⇒ Vector.empty[Double])
+
+  implicit def cValueVector[K <: Symbol, H, TL <: Coproduct](
+                                                              implicit keyWitness: Witness.Aux[K],
+                                                              heads: Lazy[DerivableVector[H]],
+                                                              tails: DerivableVector[TL]): DerivableVector[FieldType[K, H] :+: TL] =
+    createDerivableVector {
+      case Inl(head) ⇒ heads.value.vector(head)
+      case Inr(tail) ⇒ tails.vector(tail)
+
     }
-  }
-
-  implicit val asString: DerivableVector[String] = new DerivableVector[String] {
-    override def vector(in: String): Vector[Double] = Vector(in.toDouble)
-
-  }
-
-  implicit def nilVector[N <: HNil]: DerivableVector[N] = new DerivableVector[N] {
-    override def vector(in: N): Vector[Double] = Vector.empty[Double]
-  }
 
   implicit def valueVector[K <: Symbol, H, TL <: HList](
-      implicit keyWitness: Witness.Aux[K],
-      heads: Lazy[DerivableVector[H]],
-      tails: DerivableVector[TL]): DerivableVector[FieldType[K, H] :: TL] =
-    new DerivableVector[FieldType[K, H] :: TL] {
-      override def vector(in: FieldType[K, H] :: TL): Vector[Double] =
-        if (eventFields.contains(keyWitness.value.name.toLowerCase)) tails.vector(in.tail)
-        else heads.value.vector(in.head) ++ tails.vector(in.tail)
+                                                         implicit keyWitness: Witness.Aux[K],
+                                                         heads: Lazy[DerivableVector[H]],
+                                                         tails: DerivableVector[TL]): DerivableVector[FieldType[K, H] :: TL] =
+    createDerivableVector {
+      case _ :: tl if eventFields.contains(keyWitness.value.name.toLowerCase) => tails.vector(tl)
+      case h :: tl ⇒ heads.value.vector(h) ++ tails.vector(tl)
     }
 
-  implicit def ccToVector[CC <: BaseEvent, HL <: HList](
-      implicit lGen: LabelledGeneric.Aux[CC, HL],
-      dVector: DerivableVector[HL]
-  ): DerivableVector[CC] = new DerivableVector[CC] {
-    override def vector(in: CC): Vector[Double] = dVector.vector(lGen.to(in))
-  }
+  implicit def ccToVector[CC, HL <: HList](
+                                            implicit lGen: LabelledGeneric.Aux[CC, HL],
+                                            dVector: DerivableVector[HL]
+                                          ): DerivableVector[CC] = createDerivableVector(in ⇒ dVector.vector(lGen.to(in)))
 }

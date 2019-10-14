@@ -31,10 +31,10 @@ import scala.reflect.ClassTag
 
 trait FlinkSourcedPipelineTestKit[IN1, IN2, OUT] extends AbstractTestBase {
 
-  def executePipeline[IN1: TypeInformation: ClassTag, IN2: TypeInformation: ClassTag](
-      in1: Seq[(Long, IN1)],
-      in2: Seq[(Long, IN2)])(pipeline: (DataStream[IN1], DataStream[IN2]) => DataStream[OUT])(
-      implicit companion: FlinkTestKitCompanion[OUT]) = {
+  def executePipeline[IN1: TypeInformation : ClassTag, IN2: TypeInformation : ClassTag](
+                                                                                         in1: Seq[(Long, IN1)],
+                                                                                         in2: Seq[(Long, IN2)])(pipeline: (DataStream[IN1], DataStream[IN2]) => DataStream[OUT])(
+                                                                                         implicit companion: FlinkTestKitCompanion[OUT]) = {
 
     companion.testResults = mutable.MutableList[OUT]()
 

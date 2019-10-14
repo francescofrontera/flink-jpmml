@@ -51,7 +51,7 @@ case class Input(values: List[Double]) extends BaseInput {
 }
 
 final case class DynamicInput(modelId: String, values: List[Double], occurredOn: Long)
-    extends BaseEvent
+  extends BaseEvent
     with BaseInput {
   def size: Int = values.size
 }

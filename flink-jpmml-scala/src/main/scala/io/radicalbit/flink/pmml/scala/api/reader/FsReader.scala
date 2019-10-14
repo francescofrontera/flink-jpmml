@@ -29,7 +29,8 @@ import scala.util.control.Exception.allCatch
   * path building, allowing to load models from any Flink supported distributed backend
   *
   */
-private[api] trait FsReader { self: ModelReader =>
+private[api] trait FsReader {
+  self: ModelReader =>
 
   private def closable[T <: Closeable, R](t: T)(f: T => R): R =
     allCatch.andFinally(t.close())(f(t))

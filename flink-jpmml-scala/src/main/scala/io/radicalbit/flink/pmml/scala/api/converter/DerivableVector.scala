@@ -87,6 +87,6 @@ object DerivableVector {
 
   implicit def ccToVector[CC, HL <: HList](
       implicit lGen: LabelledGeneric.Aux[CC, HL],
-      dVector: DerivableVector[HL]
-  ): DerivableVector[CC] = createDerivableVector(in ⇒ dVector.vector(lGen.to(in)))
+      dVector: Lazy[DerivableVector[HL]]
+  ): DerivableVector[CC] = createDerivableVector(in ⇒ dVector.value.vector(lGen.to(in)))
 }
